@@ -3,8 +3,8 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { promisify } = require('util');
 const db = require('./db');
+const q = db.query.bind(db);
 
 const app = express();
 const PORT = 3000;
@@ -17,7 +17,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const HORAS = ["08:00","09:00","10:00","11:00","15:00","16:00","17:00","18:00","19:00","20:00"];
 
-const q = promisify(db.query).bind(db);
 
 const norm = (s) =>
   (s ?? "").toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
