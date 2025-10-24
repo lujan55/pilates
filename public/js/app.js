@@ -12,25 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const dias = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   const MAX_POR_TURNO = 7;
 
-  // ========= API BASE DINÁMICA (local o producción en Railway/Vercel) =========
-  const API_BASE =
-    window.location.hostname.includes("railway.app") ||
-    window.location.hostname.includes("vercel.app")
-      ? window.location.origin
-      : "http://localhost:3000";
+  // ===== API BASE (mismo host: Railway con Express sirve front + API) =====
+  const API_BASE = window.location.origin;
 
-  // Helper universal de fetch con JSON por defecto
   const apiFetch = (url, options = {}) => {
     const opts = {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     };
     return fetch(`${API_BASE}${url}`, opts);
   };
-
   // ===== Helpers =====
   const norm = (s) =>
     (s ?? "").toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
