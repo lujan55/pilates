@@ -1,0 +1,23 @@
+{
+  "name": "Mabel Bernacki Pilates",
+  "short_name": "Pilates",
+  "description": "Sistema de gestión de alumnas, pagos y clases de Mabel Bernacki Pilates.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#223529",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

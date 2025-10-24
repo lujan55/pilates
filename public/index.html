@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#223529">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+
   <title>Sistema Pilates</title>
 
   <!-- Bootstrap -->
@@ -148,6 +152,16 @@
   <div class="text-center mt-3">
     <button id="btnCierreCaja" class="btn btn-primary px-4">💰 Cerrar Caja Mensual</button>
   </div>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/service-worker.js')
+        .then(() => console.log('✅ Service Worker registrado correctamente'))
+        .catch((err) => console.error('Error registrando SW:', err));
+    });
+  }
+</script>
 
   <script src="js/app.js"></script>
 </body>

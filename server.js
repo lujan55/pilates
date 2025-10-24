@@ -534,4 +534,14 @@ app.delete('/api/egresos/:id', async (req, res) => {
   }
 });
 
+// === PWA manifest y service worker ===
+app.get('/manifest.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/service-worker.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+});
+
+
 app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
