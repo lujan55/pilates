@@ -12,6 +12,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const dias = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   const MAX_POR_TURNO = 7;
 
+  // ========= API BASE DINÁMICA (local o producción en Railway/Vercel) =========
+  const API_BASE =
+    window.location.hostname.includes("railway.app") ||
+    window.location.hostname.includes("vercel.app")
+      ? window.location.origin
+      : "http://localhost:3000";
+
+  // Helper universal de fetch con JSON por defecto
+  const apiFetch = (url, options = {}) => {
+    const opts = {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    };
+    return fetch(`${API_BASE}${url}`, opts);
+  };
+
   // ===== Helpers =====
   const norm = (s) =>
     (s ?? "").toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
@@ -19,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const normalizeHour = (h) => {
     if (!h) return null;
     let s = h.toString().trim().toLowerCase();
-    s = s.replace(/\s*hs?$/i, ''); // quita "hs"/"h"
-    s = s.replace(/\./g, ':');     // 8.00 -> 8:00
-    if (/^\d{1,2}:\d{2}:\d{2}$/.test(s)) s = s.slice(0, 5);
+    s = s.replace(/\s*hs?$/i, '');   // quita "hs" / "h"
+    s = s.replace(/\./g, ':');       // 8.00 -> 8:00
+    if (/^\d{1,2}:\d{2}:\d{2}$/.test(s)) s = s.slice(0, 5); // 08:00:00 -> 08:00
     const m = s.match(/^(\d{1,2})(?::?(\d{2}))?$/);
     if (!m) return null;
     const hh = m[1].padStart(2, '0');
@@ -95,9 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       // Siempre persistimos en formato CANÓNICO
       const canon = joinClasesCanon(splitClasesCanon(alumna.dias_horarios));
-      await fetch(`/api/alumnas/${alumna.id}`, {
+      await apiFetch(`/api/alumnas/${alumna.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dias_horarios: canon })
       });
       alumna.dias_horarios = canon; // mantener en memoria el mismo formato
@@ -214,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const cargarTodo = async () => {
-    const resAlumnas = await fetch('/api/alumnas');
+    const resAlumnas = await apiFetch('/api/alumnas');
     alumnos = await resAlumnas.json();
 
     // No mutamos DB aquí, solo pintamos usando vista canónica
@@ -250,9 +268,8 @@ document.addEventListener('DOMContentLoaded', () => {
   formAlumna.addEventListener('submit', async (e) => {
     e.preventDefault();
     const obj = Object.fromEntries(new FormData(formAlumna).entries());
-    await fetch('/api/alumnas', {
+    await apiFetch('/api/alumnas', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(obj)
     });
     formAlumna.reset();
@@ -263,9 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
   formPago.addEventListener('submit', async (e) => {
     e.preventDefault();
     const obj = Object.fromEntries(new FormData(formPago).entries());
-    const resp = await fetch('/api/pagos', {
+    const resp = await apiFetch('/api/pagos', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(obj)
     });
 
@@ -292,24 +308,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const tablaPagosBody = document.getElementById('tablaPagosBody');
   if (!tablaPagosBody) return;
 
+  // ========= API BASE DINÁMICA =========
+  const API_BASE =
+    window.location.hostname.includes("railway.app") ||
+    window.location.hostname.includes("vercel.app")
+      ? window.location.origin
+      : "http://localhost:3000";
+
+  const apiFetch = (url, options = {}) => {
+    const opts = {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    };
+    return fetch(`${API_BASE}${url}`, opts);
+  };
+
   const money = (n) => `$${Number(n || 0).toFixed(2)}`;
   const monthKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
   let lastMonthKey = monthKey();
 
   const cargarPagos = async () => {
     try {
-      const res = await fetch('/api/pagos/listado');
+      const res = await apiFetch('/api/pagos/listado');
       const data = await res.json();
       tablaPagosBody.innerHTML = '';
       data.forEach(row => {
         const tr = document.createElement('tr');
-tr.innerHTML = `
+        tr.innerHTML = `
   <td>${row.nombre}</td>
   <td>${new Date(row.fecha).toLocaleDateString('es-AR')}</td>
   <td>${row.metodo_pago || '-'}</td>
   <td class="text-end">${money(row.monto)}</td>
 `;
-
         tablaPagosBody.appendChild(tr);
       });
     } catch (err) {
@@ -344,6 +377,24 @@ tr.innerHTML = `
   const btnAgregarEgreso = document.getElementById('btnAgregarEgreso');
   const btnCierreCaja    = document.getElementById('btnCierreCaja');
   const contenedorBotones = btnCierreCaja?.parentElement || document.querySelector('.accionesCaja');
+
+  // ========= API BASE DINÁMICA =========
+  const API_BASE =
+    window.location.hostname.includes("railway.app") ||
+    window.location.hostname.includes("vercel.app")
+      ? window.location.origin
+      : "http://localhost:3000";
+
+  const apiFetch = (url, options = {}) => {
+    const opts = {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    };
+    return fetch(`${API_BASE}${url}`, opts);
+  };
 
   // ✅ Asegurar que la cabecera tenga "Acción"
   if (tablaHead && !tablaHead.querySelector('.col-accion')) {
@@ -386,9 +437,9 @@ tr.innerHTML = `
       tr.innerHTML = `
         <td>${mov.fecha}</td>
         <td class="${tipo === 'Ingreso' ? 'text-success fw-semibold' : 'text-danger fw-semibold'}">${tipo}</td>
-<td>${mov.detalle}</td>
-<td>${mov.metodo_pago || '-'}</td>
-<td class="text-end">${money(mov.monto)}</td>
+        <td>${mov.detalle}</td>
+        <td>${mov.metodo_pago || '-'}</td>
+        <td class="text-end">${money(mov.monto)}</td>
 
         <td class="text-center align-middle">
           <button class="btn btn-sm btn-primary me-2 px-3 py-2 fw-bold" title="Editar">
@@ -408,9 +459,8 @@ tr.innerHTML = `
         if (nuevoMonto === null || isNaN(nuevoMonto)) return alert('Monto inválido.');
 
         const endpoint = tipo === 'Ingreso' ? '/api/pagos/' : '/api/egresos/';
-        const res = await fetch(endpoint + mov.id, {
+        const res = await apiFetch(endpoint + mov.id, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ detalle: nuevoDetalle, monto: nuevoMonto })
         });
 
@@ -426,7 +476,7 @@ tr.innerHTML = `
       tr.querySelector('.btn-danger').addEventListener('click', async () => {
         if (!confirm(`¿Seguro que deseas eliminar este ${tipo.toLowerCase()}?`)) return;
         const endpoint = tipo === 'Ingreso' ? '/api/pagos/' : '/api/egresos/';
-        const res = await fetch(endpoint + mov.id, { method: 'DELETE' });
+        const res = await apiFetch(endpoint + mov.id, { method: 'DELETE' });
         if (res.ok) {
           alert(`${tipo} eliminado correctamente.`);
           cargarCaja();
@@ -450,7 +500,7 @@ tr.innerHTML = `
     try {
       if (cajaCerrada) return limpiarVistaCaja();
       const hoy = new Date();
-      const res = await fetch(`/api/caja?year=${hoy.getFullYear()}&month=${hoy.getMonth()+1}`);
+      const res = await apiFetch(`/api/caja?year=${hoy.getFullYear()}&month=${hoy.getMonth()+1}`);
       const data = await res.json();
       renderCaja(data.ingresos || [], data.egresos || []);
     } catch (err) {
@@ -472,62 +522,62 @@ tr.innerHTML = `
       alert('Caja reiniciada correctamente ✅');
     }
   });
-// ===== BOTÓN AGREGAR EGRESO =====
-(() => {
-  const btnAgregarEgreso = document.getElementById('btnAgregarEgreso');
-  const inputMonto = document.getElementById('montoEgreso');
-  const inputDetalle = document.getElementById('detalleEgreso');
 
-  if (!btnAgregarEgreso) return;
+  // ===== BOTÓN AGREGAR EGRESO =====
+  (() => {
+    const btnAgregarEgreso = document.getElementById('btnAgregarEgreso');
+    const inputMonto = document.getElementById('montoEgreso');
+    const inputDetalle = document.getElementById('detalleEgreso');
 
-  btnAgregarEgreso.addEventListener('click', async () => {
-    const monto = parseFloat(inputMonto.value);
-    const detalle = inputDetalle.value.trim();
+    if (!btnAgregarEgreso) return;
 
-    if (!monto || !detalle) {
-      alert('Completa el monto y detalle del egreso');
-      return;
-    }
+    btnAgregarEgreso.addEventListener('click', async () => {
+      const monto = parseFloat(inputMonto.value);
+      const detalle = inputDetalle.value.trim();
 
-    try {
-      const res = await fetch('/api/egresos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ monto, detalle })
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data) return;
-
-      // ✅ limpiar inputs inmediatamente
-      inputMonto.value = '';
-      inputDetalle.value = '';
-
-      // ✅ agregar el nuevo egreso directamente a la tabla sin recargar
-      const tablaBody = document.getElementById('tablaCajaBody');
-      if (tablaBody) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${data.fecha || new Date().toISOString().slice(0,10)}</td>
-          <td class="text-danger fw-semibold">Egreso</td>
-          <td>${data.detalle}</td>
-          <td class="text-end">$${Number(data.monto).toFixed(2)}</td>
-          <td class="text-center align-middle">
-            <button class="btn btn-sm btn-primary me-2 px-3 py-2 fw-bold" title="Editar">✏️</button>
-            <button class="btn btn-sm btn-danger px-3 py-2 fw-bold" title="Eliminar">🗑️</button>
-          </td>
-        `;
-        tablaBody.prepend(tr);
+      if (!monto || !detalle) {
+        alert('Completa el monto y detalle del egreso');
+        return;
       }
 
-      // ✅ actualizar totales
-      if (typeof window.cargarCaja === 'function') await window.cargarCaja();
+      try {
+        const res = await apiFetch('/api/egresos', {
+          method: 'POST',
+          body: JSON.stringify({ monto, detalle })
+        });
 
-    } catch (err) {
-      console.error('Error al guardar egreso:', err);
-    }
-  });
-})();
+        const data = await res.json();
+        if (!res.ok || !data) return;
+
+        // ✅ limpiar inputs inmediatamente
+        inputMonto.value = '';
+        inputDetalle.value = '';
+
+        // ✅ agregar el nuevo egreso directamente a la tabla sin recargar
+        const tablaBody = document.getElementById('tablaCajaBody');
+        if (tablaBody) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${data.fecha || new Date().toISOString().slice(0,10)}</td>
+            <td class="text-danger fw-semibold">Egreso</td>
+            <td>${data.detalle}</td>
+            <td class="text-end">$${Number(data.monto).toFixed(2)}</td>
+            <td class="text-center align-middle">
+              <button class="btn btn-sm btn-primary me-2 px-3 py-2 fw-bold" title="Editar">✏️</button>
+              <button class="btn btn-sm btn-danger px-3 py-2 fw-bold" title="Eliminar">🗑️</button>
+            </td>
+          `;
+          tablaBody.prepend(tr);
+        }
+
+        // ✅ actualizar totales
+        if (typeof window.cargarCaja === 'function') await window.cargarCaja();
+
+      } catch (err) {
+        console.error('Error al guardar egreso:', err);
+      }
+    });
+  })();
 
   // 🔒 CERRAR CAJA
   btnCierreCaja?.addEventListener('click', () => {
@@ -542,10 +592,29 @@ tr.innerHTML = `
   window.cargarCaja = cargarCaja;
   cargarCaja();
 })();
+
 // Banner de cumpleaños usando el endpoint dedicado (más robusto)
 (async () => {
+  // ========= API BASE DINÁMICA =========
+  const API_BASE =
+    window.location.hostname.includes("railway.app") ||
+    window.location.hostname.includes("vercel.app")
+      ? window.location.origin
+      : "http://localhost:3000";
+
+  const apiFetch = (url, options = {}) => {
+    const opts = {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    };
+    return fetch(`${API_BASE}${url}`, opts);
+  };
+
   try {
-    const res = await fetch('/api/cumples/hoy');
+    const res = await apiFetch('/api/cumples/hoy');
     if (!res.ok) return;
     const cumpleanieras = await res.json();
     if (!Array.isArray(cumpleanieras) || cumpleanieras.length === 0) return;
@@ -571,3 +640,9 @@ tr.innerHTML = `
     }
   } catch {}
 })();
+
+// ====== UTIL para banner (llamado desde cargarTodo) ======
+function mostrarBannerCumples(_alumnas) {
+  // El banner real se resuelve con el IIFE de arriba llamando a /api/cumples/hoy
+  // Esta función queda para mantener compatibilidad con tu flujo.
+}
