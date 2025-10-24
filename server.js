@@ -1,14 +1,21 @@
-// server.js (completo y actualizado)
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const db = require('./db');
-const q = db.query.bind(db);
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// === conexión query helper ===
+const q = async (sql, params = []) => {
+  const [rows] = await db.query(sql, params);
+  return rows;
+};
+
+// ===== Middlewares =====
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -17,16 +24,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const HORAS = ["08:00","09:00","10:00","11:00","15:00","16:00","17:00","18:00","19:00","20:00"];
 
-
 const norm = (s) =>
   (s ?? "").toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 
 const normalizeHour = (h) => {
   if (!h) return null;
   let s = h.toString().trim().toLowerCase();
-  s = s.replace(/\s*hs?$/i, '');   // quita "hs" / "h"
-  s = s.replace(/\./g, ':');       // 8.00 -> 8:00
-  if (/^\d{1,2}:\d{2}:\d{2}$/.test(s)) s = s.slice(0, 5); // 08:00:00 -> 08:00
+  s = s.replace(/\s*hs?$/i, '');
+  s = s.replace(/\./g, ':');
+  if (/^\d{1,2}:\d{2}:\d{2}$/.test(s)) s = s.slice(0, 5);
   const m = s.match(/^(\d{1,2})(?::?(\d{2}))?$/);
   if (!m) return null;
   const hh = m[1].padStart(2, '0');
@@ -65,16 +71,10 @@ async function addClase({ alumna_id, dia, hora }) {
 // ===== Alumnas =====
 app.get('/api/alumnas', async (req, res) => {
   try {
-    // ✅ Fecha formateada a YYYY-MM-DD para evitar problemas de timezone en el front
     const results = await q(`
-      SELECT 
-        id,
-        nombre,
-        dni,
-        telefono,
-        DATE_FORMAT(fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento,
-        patologias,
-        dias_horarios
+      SELECT id, nombre, dni, telefono,
+      DATE_FORMAT(fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento,
+      patologias, dias_horarios
       FROM alumnas
     `);
     res.json(results);
@@ -83,7 +83,6 @@ app.get('/api/alumnas', async (req, res) => {
     res.status(500).json({ error: err });
   }
 });
-
 app.post('/api/alumnas', async (req, res) => {
   try {
     const { nombre, dni, telefono, fecha_nacimiento, patologias, dias_horarios } = req.body;
@@ -534,13 +533,7 @@ app.delete('/api/egresos/:id', async (req, res) => {
 });
 
 // === PWA manifest y service worker ===
-app.get('/manifest.json', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
-});
-
-app.get('/service-worker.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
-});
-
+app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'public', 'manifest.json')));
+app.get('/service-worker.js', (req, res) => res.sendFile(path.join(__dirname, 'public', 'service-worker.js')));
 
 app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
