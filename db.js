@@ -1,19 +1,26 @@
 const mysql = require('mysql2');
 
-const db = mysql.createConnection({
-  host: 'tramway.proxy.rlwy.net',
-  user: 'root',
-  password: 'KAAVtnBsHkOCvoDfIAMVzRHDqEqrrbhV',
-  database: 'railway',
-  port: 48958
+// Pool de conexiones con reconexión automática
+const pool = mysql.createPool({
+  host: process.env.MYSQLHOST || 'tramway.proxy.rlwy.net',
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || 'KAAVtnBsHkOCvoDfIAMVzRHDqEqrrbhV',
+  database: process.env.MYSQLDATABASE || 'railway',
+  port: process.env.MYSQLPORT || 48958,
+  waitForConnections: true,   // espera si todas las conexiones están ocupadas
+  connectionLimit: 10,        // máximo de conexiones simultáneas
+  queueLimit: 0               // sin límite de cola
 });
 
-db.connect((err) => {
+// Verifica la conexión inicial (solo para logs)
+pool.getConnection((err, connection) => {
   if (err) {
-    console.error('Error al conectar con MySQL Railway:', err);
-    return;
+    console.error('❌ Error al conectar con MySQL en Railway:', err);
+  } else {
+    console.log('✅ Conectado correctamente a MySQL en Railway');
+    connection.release();
   }
-  console.log('Conectado correctamente a MySQL en Railway');
 });
 
-module.exports = db;
+// Exporta versión con promesas para usar async/await
+module.exports = pool.promise();
