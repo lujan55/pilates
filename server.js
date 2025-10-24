@@ -3,7 +3,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const db = require('./db');
-const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
 const app = express();
