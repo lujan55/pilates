@@ -1,0 +1,151 @@
+/* /public/css/style.css */
+
+/* ===== Variables de color basadas en el logo ===== */
+:root {
+  --bg: #ffffff;            /* fondo blanco */
+  --card: #f9faf9;          /* gris verdoso muy claro */
+  --text: #223529;          /* verde oscuro */
+  --muted: #9ca085;         /* verde/beige claro */
+  --primary: #223529;       /* verde oscuro principal */
+  --primary-hover: #1a2a20; /* verde más intenso */
+  --accent: #9ca085;        /* beige claro */
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+/* ===== Reset y tipografía ===== */
+* { box-sizing: border-box; margin:0; padding:0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ===== Header con logo ===== */
+header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 1rem 2rem;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+header img.logo {
+  height: 80px;   /* tamaño adecuado */
+  width: auto;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ===== Contenedor ===== */
+.container {
+  max-width: 980px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* ===== Tarjetas ===== */
+.section {
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ===== Formularios ===== */
+form#formAlumna {
+  display: grid;
+  gap: 0.8rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: var(--text);
+  border-radius: 10px;
+  padding: .65rem .8rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border .15s ease, box-shadow .15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(34,53,41,.2);
+}
+
+textarea { min-height: 88px; resize: vertical; }
+
+/* ===== Botones ===== */
+.btn-primary {
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  padding: .6rem 1.2rem;
+  border-radius: 10px;
+  transition: transform .06s ease, background .15s ease;
+  cursor: pointer;
+}
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:active { transform: translateY(1px); }
+
+/* ===== Lista de alumnas ===== */
+#listaAlumnas {
+  margin-top: .75rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+#listaAlumnas .list-group-item {
+  background: transparent;
+  color: var(--text);
+  border-bottom: 1px solid #e5e7eb;
+  padding: .9rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .3rem;
+}
+
+#listaAlumnas .list-group-item:last-child {
+  border-bottom: none;
+}
+
+/* ===== Helpers ===== */
+.muted { color: var(--muted); }
+.hr {
+  height: 1px;
+  background: rgba(0,0,0,.08);
+  border: 0;
+  margin: .75rem 0;
+}
+
+/* ===== Responsive ===== */
+@media (min-width: 620px) {
+  #listaAlumnas .list-group-item {
+    grid-template-columns: 1.2fr .8fr .8fr;
+    align-items: center;
+  }
+}
+

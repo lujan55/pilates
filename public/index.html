@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Pilates</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="container py-4">
+
+  <!-- Header -->
+  <header>
+    <img src="img/logo.jpg" alt="Mabel Bernacki Pilates" class="logo">
+    <h1>Alumnos</h1>
+  </header>
+
+  <h1 class="mb-4">Registro de Alumnos</h1>
+
+  <!-- Formulario de Alumnas -->
+  <form id="formAlumna" class="mb-4">
+    <input class="form-control mb-2" type="text" name="nombre" placeholder="Nombre completo" required>
+    <input class="form-control mb-2" type="text" name="dni" placeholder="DNI" required>
+    <input class="form-control mb-2" type="text" name="telefono" placeholder="Teléfono">
+    <input class="form-control mb-2" type="date" name="fecha_nacimiento">
+    <textarea class="form-control mb-2" name="patologias" placeholder="Patologías"></textarea>
+    <input class="form-control mb-2" type="text" name="dias_horarios" placeholder="Ej: Lunes 10hs, Miércoles 18hs">
+    <button class="btn btn-primary" type="submit">Registrar</button>
+  </form>
+
+  <h1 class="mb-4">Registro de Pagos</h1>
+
+  <form id="formPago" class="mb-4">
+    <input type="hidden" id="alumnaIdSeleccionada" name="alumna_id">
+
+    <!-- Buscador -->
+    <div class="position-relative mb-2" style="max-width: 600px;">
+      <input
+        type="text"
+        id="buscarAlumno"
+        class="form-control"
+        placeholder="Buscar alumna por nombre o DNI..."
+        autocomplete="off"
+      >
+      <ul id="listaAlumnas" class="list-group position-absolute w-100 shadow-sm"></ul>
+    </div>
+
+    <!-- Método de pago -->
+    <select class="form-control mb-2" name="metodo_pago" required>
+      <option value="">Método de pago</option>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Transferencia">Transferencia</option>
+      <option value="Tarjeta">Tarjeta</option>
+    </select>
+
+    <input class="form-control mb-2" type="number" name="monto" placeholder="Monto" required>
+
+    <button class="btn btn-success" type="submit">Registrar Pago</button>
+  </form>
+
+  <ul id="listaAlumnas" class="list-group"></ul>
+
+  <h2>Calendario de Clases</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered text-center align-middle" id="tablaCalendario">
+      <thead class="table-dark">
+        <tr>
+          <th>Hora</th>
+          <th>Lunes</th>
+          <th>Martes</th>
+          <th>Miércoles</th>
+          <th>Jueves</th>
+          <th>Viernes</th>
+          <th>Sábado</th>
+        </tr>
+      </thead>
+      <tbody id="bodyCalendario"></tbody>
+    </table>
+  </div>
+
+  <!-- ===== PAGOS REALIZADOS ===== -->
+  <h4 class="mt-5 mb-3 text-center">Pagos Realizados</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Nombre de la Alumna</th>
+          <th>Fecha de Pago</th>
+          <th>Método de Pago</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody id="tablaPagosBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ===== CIERRE DE CAJA MENSUAL ===== -->
+  <h2 class="mt-5 mb-3 text-center">Cierre de Caja Mensual</h2>
+
+  <div class="card p-3 shadow-sm mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Monto del egreso</label>
+        <input type="number" id="montoEgreso" class="form-control" placeholder="0.00" step="0.01">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Detalle del egreso</label>
+        <input type="text" id="detalleEgreso" class="form-control" placeholder="Ej: Alquiler, Insumos...">
+      </div>
+      <div class="col-md-2">
+        <button id="btnAgregarEgreso" class="btn btn-danger w-100">Agregar egreso</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped text-center align-middle" id="tablaCaja">
+      <thead class="table-dark">
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Detalle</th>
+          <th>Método de Pago</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody id="tablaCajaBody"></tbody>
+      <tfoot class="table-secondary fw-bold">
+        <tr>
+          <td colspan="4">Total Ingresos</td>
+          <td id="totalIngresos">$0.00</td>
+        </tr>
+        <tr>
+          <td colspan="4">Total Egresos</td>
+          <td id="totalEgresos">$0.00</td>
+        </tr>
+        <tr class="table-primary">
+          <td colspan="4">Saldo Final</td>
+          <td id="totalNeto">$0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="text-center mt-3">
+    <button id="btnCierreCaja" class="btn btn-primary px-4">💰 Cerrar Caja Mensual</button>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
